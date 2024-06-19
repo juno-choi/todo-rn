@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert, Platform } from 'react-native';
 import { theme } from './color';
 import { useEffect, useState } from 'react';
 import AsnyncStorage from '@react-native-async-storage/async-storage';
@@ -44,16 +44,25 @@ export default function App() {
   }
   
   const deleteToDo = async (key) => {
-    Alert.alert("삭제", "정말로 삭제하시겠어요?", [
-      {text: "취소", style: "cancel"},
-      {text: "삭제", onPress: async () => {
+    if (Platform.OS === 'web') {
+      const ok = confirm("정말로 삭제하시겠어요?");
+      if (ok) {
         const newToDos = {...toDos};
         delete newToDos[key];
         setToDos(newToDos);
         await saveToDos(newToDos);
-      }}
-    ])
-    return;
+      }
+    } else {
+      Alert.alert("삭제", "정말로 삭제하시겠어요?", [
+        {text: "취소", style: "cancel"},
+        {text: "삭제", onPress: async () => {
+          const newToDos = {...toDos};
+          delete newToDos[key];
+          setToDos(newToDos);
+          await saveToDos(newToDos);
+        }}
+      ])
+    }
   }
   return (
     <View style={styles.container}>
